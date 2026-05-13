@@ -1,0 +1,34 @@
+{
+  "cleaning_stats": {
+    "total_annotations": 457066,
+    "kept_annotations": 334751,
+    "dropped_invalid_size": 1,
+    "dropped_non_target_class": 122314,
+    "fixed_out_of_bound_boxes": 3260,
+    "corrupted_images": 0
+  },
+  "split_stats": {
+    "train": {
+      "car": 144866,
+      "person": 106396,
+      "images": 6471,
+      "images_with_targets": 6468
+    },
+    "val": {
+      "car": 14064,
+      "person": 13969,
+      "images": 548,
+      "images_with_targets": 548
+    },
+    "test": {
+      "car": 28074,
+      "person": 27382,
+      "images": 1610,
+      "images_with_targets": 1603
+    }
+  },
+  "class_mapping": {
+    "person": 0,
+    "car": 1
+  }
+}

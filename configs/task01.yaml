@@ -1,0 +1,12 @@
+dataset_ref: banuprasadb/visdrone-dataset
+target_classes:
+  person:
+    visdrone_ids: [1, 2]
+    output_id: 0
+  car:
+    visdrone_ids: [4]
+    output_id: 1
+area_buckets_px2:
+  tiny_max: 1024
+  small_max: 9216
+  medium_max: 50176
