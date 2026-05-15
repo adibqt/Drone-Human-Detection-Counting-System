@@ -48,6 +48,18 @@ def parse_args() -> argparse.Namespace:
         help="JSON file to write the summary into.",
     )
     parser.add_argument(
+        "--project",
+        type=Path,
+        default=Path("outputs/figures/task02"),
+        help="Ultralytics 'project' dir for the auto-generated plots (val_batch*, PR curves, etc.).",
+    )
+    parser.add_argument(
+        "--name",
+        type=str,
+        default=None,
+        help="Ultralytics run name inside --project (default: local_<split>).",
+    )
+    parser.add_argument(
         "--device",
         type=str,
         default=None,
@@ -99,6 +111,10 @@ def main() -> None:
     model = YOLO(str(args.weights))
     names = {int(k): v for k, v in model.names.items()}
 
+    project_dir = args.project.resolve()
+    run_name = args.name or f"local_{args.split}"
+    project_dir.mkdir(parents=True, exist_ok=True)
+
     t0 = time.perf_counter()
     metrics_obj = model.val(
         data=str(args.data),
@@ -108,6 +124,9 @@ def main() -> None:
         device=device,
         plots=True,
         verbose=True,
+        project=str(project_dir),
+        name=run_name,
+        exist_ok=True,
     )
     elapsed_s = time.perf_counter() - t0
 
@@ -125,6 +144,7 @@ def main() -> None:
         "device_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
         "host": platform.node(),
         "duration_seconds": round(elapsed_s, 2),
+        "plots_dir": str(project_dir / run_name),
         "overall": overall,
         "per_class": per_cls,
         "class_names": names,

@@ -1,0 +1,37 @@
+{
+  "weights": "outputs\\weights\\best.pt",
+  "data_yaml": "configs\\task02_data.yaml",
+  "split": "test",
+  "imgsz": 800,
+  "batch": 8,
+  "device": "0",
+  "device_name": "NVIDIA GeForce GTX 1660 SUPER",
+  "host": "Stryk3r",
+  "duration_seconds": 55.57,
+  "plots_dir": "F:\\Drone-Human-Detection-Counting-System\\outputs\\figures\\task02\\local_test",
+  "overall": {
+    "metrics/precision(B)": 0.6891532357237533,
+    "metrics/recall(B)": 0.5357166128043002,
+    "metrics/mAP50(B)": 0.5593628343586796,
+    "metrics/mAP50-95(B)": 0.31294755290491316,
+    "fitness": 0.31294755290491316
+  },
+  "per_class": {
+    "person": {
+      "precision": 0.6120448907337765,
+      "recall": 0.329340442626543,
+      "mAP50": 0.35176998510802004,
+      "mAP50_95": 0.13867748396055413
+    },
+    "car": {
+      "precision": 0.7662615807137302,
+      "recall": 0.7420927829820574,
+      "mAP50": 0.7669556836093392,
+      "mAP50_95": 0.4872176218492723
+    }
+  },
+  "class_names": {
+    "0": "person",
+    "1": "car"
+  }
+}

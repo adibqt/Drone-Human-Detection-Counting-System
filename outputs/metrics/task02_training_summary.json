@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-05-15T09:36:43",
+  "device_name": "Tesla T4",
+  "model": "yolov8s.pt",
+  "data": "/content/task02_data.yaml",
+  "imgsz": 800,
+  "batch": 16,
+  "epochs": 40,
+  "val_metrics": {
+    "metrics/precision(B)": 0.7780799109551718,
+    "metrics/recall(B)": 0.6437094100613328,
+    "metrics/mAP50(B)": 0.7024678091882117,
+    "metrics/mAP50-95(B)": 0.41525866425492974,
+    "fitness": 0.41525866425492974
+  },
+  "test_metrics": {
+    "metrics/precision(B)": 0.6891545519174641,
+    "metrics/recall(B)": 0.5357522768371458,
+    "metrics/mAP50(B)": 0.5593714326962083,
+    "metrics/mAP50-95(B)": 0.31296976040801516,
+    "fitness": 0.31296976040801516
+  },
+  "best_weights_in_drive": "/content/drive/MyDrive/visdrone_project/runs/yolov8s_visdrone/weights/best.pt",
+  "results_png_in_drive": "/content/drive/MyDrive/visdrone_project/runs/yolov8s_visdrone/results.png",
+  "confusion_matrix_in_drive": "/content/drive/MyDrive/visdrone_project/runs/yolov8s_visdrone/confusion_matrix.png"
+}

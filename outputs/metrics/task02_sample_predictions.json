@@ -1,0 +1,86 @@
+[
+  {
+    "image": "0000194_00800_d_0000123.jpg",
+    "person_count": 21,
+    "car_count": 9,
+    "inference_time_ms": 581.6,
+    "annotated_path": "outputs/figures/task02/predictions/0000194_00800_d_0000123.jpg"
+  },
+  {
+    "image": "0000026_00500_d_0000025.jpg",
+    "person_count": 5,
+    "car_count": 10,
+    "inference_time_ms": 23.11,
+    "annotated_path": "outputs/figures/task02/predictions/0000026_00500_d_0000025.jpg"
+  },
+  {
+    "image": "0000283_00401_d_0000676.jpg",
+    "person_count": 2,
+    "car_count": 4,
+    "inference_time_ms": 29.13,
+    "annotated_path": "outputs/figures/task02/predictions/0000283_00401_d_0000676.jpg"
+  },
+  {
+    "image": "0000277_01801_d_0000548.jpg",
+    "person_count": 18,
+    "car_count": 38,
+    "inference_time_ms": 28.45,
+    "annotated_path": "outputs/figures/task02/predictions/0000277_01801_d_0000548.jpg"
+  },
+  {
+    "image": "0000276_02601_d_0000520.jpg",
+    "person_count": 0,
+    "car_count": 15,
+    "inference_time_ms": 25.45,
+    "annotated_path": "outputs/figures/task02/predictions/0000276_02601_d_0000520.jpg"
+  },
+  {
+    "image": "0000242_00627_d_0000003.jpg",
+    "person_count": 5,
+    "car_count": 22,
+    "inference_time_ms": 19.71,
+    "annotated_path": "outputs/figures/task02/predictions/0000242_00627_d_0000003.jpg"
+  },
+  {
+    "image": "0000193_01876_d_0000113.jpg",
+    "person_count": 36,
+    "car_count": 8,
+    "inference_time_ms": 20.75,
+    "annotated_path": "outputs/figures/task02/predictions/0000193_01876_d_0000113.jpg"
+  },
+  {
+    "image": "0000155_00801_d_0000001.jpg",
+    "person_count": 43,
+    "car_count": 24,
+    "inference_time_ms": 21.99,
+    "annotated_path": "outputs/figures/task02/predictions/0000155_00801_d_0000001.jpg"
+  },
+  {
+    "image": "0000330_00801_d_0000804.jpg",
+    "person_count": 16,
+    "car_count": 51,
+    "inference_time_ms": 22.81,
+    "annotated_path": "outputs/figures/task02/predictions/0000330_00801_d_0000804.jpg"
+  },
+  {
+    "image": "0000026_04000_d_0000032.jpg",
+    "person_count": 1,
+    "car_count": 13,
+    "inference_time_ms": 23.14,
+    "annotated_path": "outputs/figures/task02/predictions/0000026_04000_d_0000032.jpg"
+  },
+  {
+    "image": "0000026_03000_d_0000030.jpg",
+    "person_count": 0,
+    "car_count": 11,
+    "inference_time_ms": 24.06,
+    "annotated_path": "outputs/figures/task02/predictions/0000026_03000_d_0000030.jpg"
+  },
+  {
+    "image": "0000162_00801_d_0000001.jpg",
+    "person_count": 11,
+    "car_count": 7,
+    "inference_time_ms": 19.06,
+    "annotated_path": "outputs/figures/task02/predictions/0000162_00801_d_0000001.jpg"
+  }
+]

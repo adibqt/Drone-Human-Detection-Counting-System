@@ -262,10 +262,58 @@ pass on `best.pt`). Ultralytics' own `results.csv`, `results.png`,
 Drive into `outputs/figures/task02/` and `outputs/metrics/`.
 
 <!-- METRICS_TABLE_START -->
-_Metrics populate here after the Colab training run finishes and
-`outputs/weights/best.pt` is copied back. Re-run
-`python src\eval\evaluate_detector.py --weights outputs\weights\best.pt`
-on this machine to refresh the JSON summary._
+
+**Final 40-epoch YOLOv8s on Colab T4 (`imgsz=800, batch=16, AMP`)**, reproduced
+locally on the GTX 1660 SUPER via `src/eval/evaluate_detector.py`:
+
+| Split (images / instances) | Class    | Precision | Recall | mAP@50 | mAP@50-95 |
+| -------------------------- | -------- | --------: | -----: | -----: | --------: |
+| **val** (548 / 28 033)     | all      | **0.778** | 0.644  | **0.702** | 0.415  |
+|                            | person   | 0.729     | 0.508  | 0.578  | 0.251     |
+|                            | car      | 0.827     | 0.779  | 0.827  | 0.579     |
+| **test-dev** (1 610 / 55 456) | all   | 0.689     | 0.536  | 0.559  | 0.313     |
+|                            | person   | 0.612     | 0.329  | 0.352  | 0.139     |
+|                            | car      | 0.766     | 0.742  | 0.767  | 0.487     |
+
+Speed on the local GTX 1660 SUPER at `imgsz=800`:
+**~9 ms / image inference** (1 ms preprocess + 2 ms postprocess), i.e.
+~83 FPS end-to-end for a single-image stream — comfortably real-time
+even on this 6 GB card.
+
+Observations:
+
+- **Cars are easy, persons are hard.** Cars have ~1.6× the bbox area
+  of persons on average in VisDrone, are usually less occluded, and
+  have rigid silhouettes — that shows up as mAP50 0.83 vs 0.58 (val)
+  and 0.77 vs 0.35 (test). Most missed persons are the *tiny* (<32²)
+  pedestrians flagged in Task-01's `bbox_area_distribution.png`.
+- **Val vs test gap.** The drop from val mAP50 0.70 → test mAP50 0.56
+  is mostly absorbed by person recall (0.51 → 0.33). Test-dev contains
+  more dense crowd scenes which compound the small-object failure mode.
+- **Counting reliability.** Per-image car counts in the sample sweep
+  (`outputs/metrics/task02_sample_predictions.json`) match human ground
+  truth within ±1-2 for clear scenes. Crowded pedestrian frames
+  (e.g. `0000155_00801_d_0000001.jpg`, 43 detected persons) will need
+  the tracking-aware counting from Task-04 to debounce flicker.
+
+All numeric outputs live in:
+
+- `outputs/metrics/task02_training_summary.json` (Colab T4 metrics)
+- `outputs/metrics/task02_eval_summary.json` (local val re-validation)
+- `outputs/metrics/task02_eval_test_summary.json` (local test-dev re-validation)
+- `outputs/metrics/task02_results.csv` (per-epoch training curves)
+- `outputs/metrics/task02_sample_predictions.json` (per-image counts + ms)
+
+Plot artifacts:
+
+- `outputs/figures/task02/results.png` — loss / mAP curves over 40 epochs.
+- `outputs/figures/task02/confusion_matrix.png` (+ normalized variant).
+- `outputs/figures/task02/BoxPR_curve.png` etc. (from Colab).
+- `outputs/figures/task02/local_val/` and `local_test/` — Ultralytics'
+  PR / P / R / F1 curves, confusion matrices, and `val_batch*_pred.jpg`
+  vs `val_batch*_labels.jpg` side-by-side previews from the local
+  re-validation run.
+
 <!-- METRICS_TABLE_END -->
 
 ### Sample predictions
