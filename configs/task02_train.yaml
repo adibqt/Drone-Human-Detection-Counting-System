@@ -1,3 +1,8 @@
+# Local training config (FALLBACK ONLY).
+# The canonical training run is performed on Google Colab via
+# notebooks/task02_train_colab.ipynb (imgsz=800, batch=16, epochs=40,
+# AMP=on). This config is tuned for a 6 GB GTX 1660-class card if you
+# need to reproduce locally.
 model: yolov8s.pt
 data: configs/task02_data.yaml
 epochs: 20

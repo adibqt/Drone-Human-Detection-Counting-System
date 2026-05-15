@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
         help="Path for the per-image summary JSON.",
     )
     parser.add_argument("--num-samples", type=int, default=12, help="Number of images to sample.")
-    parser.add_argument("--imgsz", type=int, default=640, help="Inference image size.")
+    parser.add_argument("--imgsz", type=int, default=800, help="Inference image size (match Colab training).")
     parser.add_argument("--conf", type=float, default=0.25, help="Detection confidence threshold.")
     parser.add_argument("--iou", type=float, default=0.5, help="NMS IoU threshold.")
     parser.add_argument("--seed", type=int, default=42, help="Sampling seed.")

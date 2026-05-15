@@ -26,20 +26,21 @@ _ORIGINAL_OPEN = builtins.open
 def _retry_open(*args, **kwargs):
     """Drop-in replacement for `open` that retries on transient PermissionError.
 
-    Windows antivirus / search-indexer occasionally locks small files
-    (`results.csv`, JSON summaries) for a few hundred ms while a writer
-    process tries to append. This wrapper retries up to ~3 seconds total
-    before giving up so a long training run is not killed by a transient
-    lock.
+    Windows antivirus / search-indexer can lock small files (`results.csv`,
+    JSON summaries) for several seconds while a writer process tries to
+    append. This wrapper retries with exponential backoff for up to ~60 s
+    so a multi-hour training run does not die on a transient lock.
     """
     last_exc: PermissionError | None = None
-    for delay in (0, 0.05, 0.1, 0.2, 0.5, 1.0, 1.0):
+    delays = (0, 0.1, 0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 5.0, 10.0, 10.0, 15.0)
+    for delay in delays:
         if delay:
             time.sleep(delay)
         try:
             return _ORIGINAL_OPEN(*args, **kwargs)
-        except PermissionError as exc:  # transient on Windows
+        except PermissionError as exc:
             last_exc = exc
+            print(f"[open] PermissionError on {args[0]!r}, retrying in {delay if delay else 0.1}s")
     raise last_exc  # type: ignore[misc]
 
 

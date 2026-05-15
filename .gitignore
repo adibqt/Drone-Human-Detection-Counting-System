@@ -1,8 +1,19 @@
 
 *.txt
-/src/data/__pycache__
 ASSIGNMENT_EXECUTION_GUIDE.md
 .venv/
 *.py[cod]
+__pycache__/
+
+# Large dataset / training artifacts kept outside of git history
+data/processed/
+visdrone_yolo.zip
+*.pt
+*.cache
+outputs/runs/
+
+# Allow these small text artifacts despite *.txt above
+!requirements.txt
+!**/results.txt
 /data
 *.zip

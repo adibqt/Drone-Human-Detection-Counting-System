@@ -1,0 +1,17 @@
+kagglehub
+numpy
+pandas
+matplotlib
+seaborn
+opencv-python
+tqdm
+pyyaml
+
+# Task-02: model training / inference
+# Install torch + torchvision with CUDA wheels separately, e.g.:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+ultralytics>=8.3
+supervision
+scipy
