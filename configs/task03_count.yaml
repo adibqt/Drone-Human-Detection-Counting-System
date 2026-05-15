@@ -1,0 +1,33 @@
+# Task-03 — Human & Car detection with human counting.
+# Hyperparameters consumed by src/infer/detect_and_count.py.
+
+weights: outputs/weights/best.pt
+imgsz: 800
+
+# Class-specific confidence thresholds.
+# Persons in VisDrone are tiny / often partially occluded so we keep the
+# threshold low to preserve recall. Cars are easier and bigger; we bump
+# their threshold a little to suppress the long tail of low-conf false
+# positives caused by aerial clutter.
+class_thresholds:
+  person: 0.25
+  car: 0.30
+
+# NMS IoU threshold applied to YOLO's raw outputs.
+iou: 0.5
+
+# Drop detections whose bbox area (in pixels^2) is below this value
+# *after* applying NMS. Removes tiny "speck" false positives that the
+# detector occasionally emits over dense aerial scenes.
+min_bbox_area_px: 32
+
+# Drawing / banner configuration.
+draw:
+  box_thickness: 2
+  label_font_scale: 0.45
+  label_font_thickness: 1
+  banner_font_scale: 0.9
+  banner_font_thickness: 2
+  # The Task-03 deliverable specifically calls for "total human count".
+  # The car count is also shown for context but is visually secondary.
+  primary_metric: human_count

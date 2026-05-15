@@ -1,0 +1,17 @@
+{
+  "mode": "image_dir",
+  "weights": "outputs\\weights\\best.pt",
+  "imgsz": 800,
+  "iou": 0.5,
+  "class_thresholds": {
+    "person": 0.25,
+    "car": 0.3
+  },
+  "min_bbox_area_px": 32.0,
+  "num_inputs": 20,
+  "total_persons_detected": 206,
+  "total_cars_detected": 330,
+  "max_persons_in_single_input": 43,
+  "max_cars_in_single_input": 54,
+  "mean_inference_time_ms": 51.19
+}

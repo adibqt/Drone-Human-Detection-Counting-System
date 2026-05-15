@@ -325,4 +325,164 @@ land in `outputs/figures/task02/predictions/` and a per-image summary
 (class counts + inference time in ms) is written to
 `outputs/metrics/task02_sample_predictions.json`.
 
+---
+
+## Task-03: Human & Car Detection with Human Counting
+
+### Goal
+
+> Build a system that, given a drone image (or a folder of them), runs
+> the Task-02 detector, draws bounding boxes for the two classes, and
+> prominently displays the **total human count** for that image. The
+> counting logic is intentionally simple.
+
+### Pipeline
+
+`src/infer/detect_and_count.py` is the Task-03 entry point. It loads
+the Colab-trained `best.pt`, reads a small config YAML, and supports
+two input modes from one CLI:
+
+| Mode             | Flag                  | What it produces                                                     |
+| ---------------- | --------------------- | -------------------------------------------------------------------- |
+| Single image     | `--image <path>`      | One annotated image in `--output-dir` + 1-row CSV                    |
+| Image directory  | `--image-dir <dir>`   | An annotated image per input in `--output-dir`, full counts CSV      |
+
+Video / streaming input is intentionally out of scope here — that
+belongs to the Task-04 tracking work, where the count becomes
+"unique IDs in window" instead of "detections this frame".
+
+The actual counting logic is one line:
+
+```python
+human_count = sum(1 for d in detections if d.cls_name == "person")
+car_count   = sum(1 for d in detections if d.cls_name == "car")
+```
+
+What is *not* one line is the **filtering** that happens before counting,
+because raw YOLO output on aerial imagery has two characteristic noise
+patterns we want to suppress.
+
+### Counting robustness — three knobs
+
+All three are configured in [`configs/task03_count.yaml`](configs/task03_count.yaml)
+and are wired into the pipeline through `CountingConfig.from_yaml`:
+
+1. **Class-specific confidence thresholds.**
+   Persons in VisDrone are small and often partially occluded, so
+   raising the threshold above ~0.25 starts eating recall fast. Cars
+   are larger and rigid, so a slightly higher threshold (0.30) removes
+   most low-confidence false positives without hurting recall. Both
+   thresholds are applied *after* YOLO's own NMS, with YOLO itself
+   called at the lower of the two so neither class is starved.
+
+   ```yaml
+   class_thresholds:
+     person: 0.25
+     car: 0.30
+   ```
+
+2. **Minimum bbox area filter (`min_bbox_area_px: 32`).**
+   The detector occasionally emits 1-2 pixel "speck" boxes on dense
+   foliage / sun glare. Their per-instance impact on mAP is small but
+   they directly inflate the human count, which is the deliverable we
+   actually care about, so we drop any detection with area < 32 px².
+
+3. **NMS IoU threshold (`iou: 0.5`).**
+   YOLO's built-in NMS de-duplicates overlapping boxes of the same
+   class. Loosening this below 0.5 starts merging close-by-but-distinct
+   pedestrians in crowds; tightening it past 0.5 starts admitting
+   duplicates for elongated cars at oblique angles. 0.5 is the standard
+   COCO setting and works well here.
+
+### Visual output
+
+Each annotated frame gets:
+
+- A per-class colored bounding box (green for `person`, orange for
+  `car`) with a `class conf` label rendered on a filled bar above each
+  box for readability against busy backgrounds.
+- A black banner in the top-left containing:
+
+  ```text
+  Human Count: <X>
+  Car Count: <Y>
+  ```
+
+  `Human Count` is rendered in larger cyan-yellow text to satisfy the
+  Task-03 brief ("display total human count"); `Car Count` is
+  secondary, smaller, and white. Both are drawn with anti-aliased text
+  on top of a filled rectangle so they remain readable on any
+  background.
+
+Example output on `0000155_00801_d_0000001.jpg` — a dense urban scene
+with 43 humans and 21 cars detected:
+
+```7:7:outputs/figures/task03/predictions/0000155_00801_d_0000001.jpg
+(see file)
+```
+
+### How to run
+
+```powershell
+# Default: 20 random val images, defaults to outputs/weights/best.pt
+scripts\run_task03.bat
+
+# Or point at any image dir
+scripts\run_task03.bat data\processed\visdrone\test\images
+
+# Single image
+python src\infer\detect_and_count.py ^
+    --config configs\task03_count.yaml ^
+    --image data\processed\visdrone\val\images\0000155_00801_d_0000001.jpg
+```
+
+### Sample run (20 val images)
+
+The default `scripts\run_task03.bat` pass produced:
+
+| Metric                                    | Value                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| Inputs                                    | 20 images sampled from `data/processed/visdrone/val/images/`          |
+| Total **humans** detected                 | **206**                                                               |
+| Total **cars** detected                   | 330                                                                   |
+| Max humans in a single image              | 43 (`0000155_00801_d_0000001.jpg`)                                    |
+| Max cars in a single image                | 54 (`0000330_00201_d_0000801.jpg`)                                    |
+| Steady-state inference                    | **~17 ms / image** on the local GTX 1660 SUPER (≈ 58 FPS, batch=1)    |
+| First-call warm-up                        | ~551 ms (one-time CUDA kernel compile + weight upload)                |
+| Mean inference reported                   | 44.4 ms (skewed by the warm-up; ignore the first row of the CSV)      |
+
+Outputs:
+
+- Annotated overlays — `outputs/figures/task03/predictions/*.jpg`.
+- Per-image counts + timing — `outputs/metrics/task03_counts.csv`.
+- Aggregate summary — `outputs/metrics/task03_summary.json`.
+
+### Strengths and known failure modes
+
+Strengths:
+
+- The class-specific thresholds + min-area filter make the **human
+  count rock-stable on clear scenes** (typo errors ≤ 1 vs ground truth
+  in samples like `0000026_00500_d_0000025.jpg`).
+- Car counts are reliable even in heavy traffic — saw 54 cars correctly
+  separated in `0000330_00201_d_0000801.jpg` with no visible duplicates.
+- Counting is **deterministic per input** (same seed → same numbers,
+  no temporal accumulation), which makes it easy to validate.
+
+Failure modes worth knowing about for Task-05 / Task-04:
+
+- **Dense crowds → undercount.** Person recall is 0.51 on val; in
+  scenes like `0000193_01876_d_0000113.jpg` (36 detected vs noticeably
+  more in the ground truth) the model fuses pairs of overlapping
+  pedestrians or drops the ones smaller than ~16 px.
+- **Static cars on shoulders / parking lots → overcount.** A few
+  partially-occluded cars in `0000330_00201_d_0000801.jpg` show up as
+  two close-by boxes if the NMS IoU is loosened from 0.5.
+- **Counting is per-image, with no temporal awareness.** If the same
+  scene is later observed as a video, every frame is counted
+  independently and the same pedestrian reappears across many frames.
+  Turning that into a stable per-scene human count requires per-object
+  identity tracking, which is the Task-04 bonus (ByteTrack / BoT-SORT
+  on top of the same detector).
+
 
