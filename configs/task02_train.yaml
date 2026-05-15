@@ -1,0 +1,41 @@
+model: yolov8s.pt
+data: configs/task02_data.yaml
+epochs: 20
+imgsz: 640
+batch: 6
+optimizer: SGD
+lr0: 0.01
+lrf: 0.01
+momentum: 0.937
+weight_decay: 0.0005
+warmup_epochs: 3.0
+cos_lr: true
+patience: 15
+
+hsv_h: 0.015
+hsv_s: 0.5
+hsv_v: 0.4
+fliplr: 0.5
+flipud: 0.0
+degrees: 0.0
+translate: 0.1
+scale: 0.5
+mosaic: 1.0
+close_mosaic: 8
+mixup: 0.0
+erasing: 0.0
+auto_augment: null
+
+cache: false
+workers: 4
+seed: 42
+deterministic: true
+amp: false  # GTX 1660 family fails Ultralytics AMP check; train in FP32
+
+project: outputs/runs/task02
+name: yolov8s_visdrone
+exist_ok: true
+plots: true
+save: true
+save_period: -1
+verbose: true

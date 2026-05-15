@@ -2,3 +2,7 @@
 *.txt
 /src/data/__pycache__
 ASSIGNMENT_EXECUTION_GUIDE.md
+.venv/
+*.py[cod]
+/data
+*.zip

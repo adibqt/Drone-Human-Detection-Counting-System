@@ -1,0 +1,8 @@
+path: F:/Drone-Human-Detection-Counting-System/data/processed/visdrone
+train: train/images
+val: val/images
+names:
+  0: person
+  1: car
+nc: 2
+test: test/images
