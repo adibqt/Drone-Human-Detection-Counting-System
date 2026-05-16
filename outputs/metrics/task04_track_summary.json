@@ -1,0 +1,21 @@
+{
+  "source": "data\\processed\\visdrone\\val\\VisDrone2019-VID-val\\VisDrone2019-VID-val\\sequences\\uav0000086_00000_v",
+  "output_video": "outputs\\videos\\task04_demo.mp4",
+  "weights": "outputs\\weights\\best.pt",
+  "tracker": "bytetrack.yaml",
+  "imgsz": 800,
+  "iou": 0.5,
+  "class_thresholds": {
+    "person": 0.25,
+    "car": 0.3
+  },
+  "min_bbox_area_px": 32.0,
+  "frames_processed": 464,
+  "output_fps": 15.0,
+  "unique_persons": 233,
+  "unique_cars": 0,
+  "max_simultaneous_persons": 60,
+  "max_simultaneous_cars": 0,
+  "mean_inference_time_ms": 32.02,
+  "wall_clock_seconds": 14.86
+}

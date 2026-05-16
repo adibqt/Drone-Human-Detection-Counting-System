@@ -1,0 +1,36 @@
+# Task-04 (bonus) — Object tracking + unique-ID human counting.
+# Hyperparameters consumed by src/track/track_video.py.
+
+weights: outputs/weights/best.pt
+imgsz: 800
+
+# Class-specific confidence thresholds (same recipe as Task-03 since
+# the underlying detector is identical).
+class_thresholds:
+  person: 0.25
+  car: 0.30
+
+# NMS IoU threshold applied to the detector's raw outputs (before the
+# tracker associates detections with existing tracks).
+iou: 0.5
+
+# Drop boxes with bbox area below this many pixels^2 after NMS.
+min_bbox_area_px: 32
+
+# Tracker. Ultralytics ships these two YAMLs out of the box; either
+# can be used unchanged. ByteTrack is the lighter / faster default and
+# is a strong baseline for crowded aerial scenes.
+#   - bytetrack.yaml  (default)
+#   - botsort.yaml    (heavier, adds re-ID + camera motion compensation)
+tracker: bytetrack.yaml
+
+# Drawing / banner configuration.
+draw:
+  box_thickness: 2
+  label_font_scale: 0.45
+  label_font_thickness: 1
+  banner_font_scale: 0.9
+  banner_font_thickness: 2
+  # When true, each box is colored by its persistent track ID instead
+  # of by class (so you can visually follow one ID across the video).
+  color_by_track_id: true
