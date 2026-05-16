@@ -716,3 +716,168 @@ Failure modes worth knowing about:
   Task-02 metrics), so the unique-human count is a lower bound
   on the true number of distinct humans in the video.
 
+---
+
+## Task-05: Evaluation & Visualization
+
+This section is the consolidated report. Every claim below points at
+an artifact that already exists in the repo (run the corresponding
+script if you want to regenerate it). Nothing new is computed here —
+this is the index a grader can read top-to-bottom in a minute and
+then drill into the per-task sections above for the implementation
+detail.
+
+### Top-line numbers
+
+| Stage         | Metric                                | Value                         | Source artifact                                       |
+| ------------- | ------------------------------------- | ----------------------------- | ----------------------------------------------------- |
+| Detector      | val mAP@50 (all classes)              | **0.702**                     | `outputs/metrics/task02_eval_summary.json`            |
+| Detector      | val mAP@50-95 (all classes)           | 0.415                         | "                                                     |
+| Detector      | val person mAP@50 / car mAP@50        | 0.578 / 0.827                 | "                                                     |
+| Detector      | test-dev mAP@50 (all classes)         | 0.559                         | `outputs/metrics/task02_eval_test_summary.json`       |
+| Detector      | inference speed (imgsz=800, GTX 1660S) | **~83 FPS** (12 ms/img)      | logs of `src/eval/evaluate_detector.py`               |
+| Counting (T3) | 20-image val sample, total humans / cars | 206 / 330                  | `outputs/metrics/task03_summary.json`                 |
+| Counting (T3) | per-image counting speed              | **~58 FPS** (17 ms/img)       | `outputs/metrics/task03_counts.csv`                   |
+| Tracking (T4) | court scene — frames / unique humans  | 464 / **233**                 | `outputs/metrics/task04_track_summary.json`           |
+| Tracking (T4) | road scene  — frames / unique cars    | 978 / **118**                 | `outputs/metrics/task04_uav0000268_05773_v_summary.json` |
+| Tracking (T4) | tracking speed (avg of both scenes)   | **~26 FPS** (38 ms/frame)     | per-frame CSVs                                        |
+
+### Representative outputs
+
+| Stage   | What it shows                                                          | File                                                                 |
+| ------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Task-02 | Bare detector — boxes only on a dense urban scene                      | `outputs/figures/task02/predictions/0000155_00801_d_0000001.jpg`     |
+| Task-02 | Training curves (loss + mAP over 40 epochs)                            | `outputs/figures/task02/results.png`                                 |
+| Task-02 | Confusion matrix (2-class)                                             | `outputs/figures/task02/confusion_matrix.png`                        |
+| Task-03 | Detector + counting banner on the same dense scene (43 humans, 21 cars) | `outputs/figures/task03/predictions/0000155_00801_d_0000001.jpg`   |
+| Task-03 | Crowded scene with 36 persons + 6 cars — undercount failure mode        | `outputs/figures/task03/predictions/0000193_01876_d_0000113.jpg`   |
+| Task-04 | Mid-frame of basketball court demo — `Unique Humans: 124, Visible: 43` | `outputs/figures/task04/vid_uav0000086_mid.jpg`                      |
+| Task-04 | Last frame of road demo — `Unique Cars: 118, Visible: ~5`              | `outputs/figures/task04/vid_uav0000268_last.jpg`                     |
+| Task-04 | Full annotated demo video (basketball court)                           | `outputs/videos/task04_demo.mp4` (50 MB)                             |
+
+The bare-detector vs detector+counting comparison on the *same* image
+(`0000155_00801_d_0000001.jpg`, listed twice above) is the cleanest
+visual of what Task-03 adds on top of Task-02: identical boxes, plus
+a black banner in the top-left reporting `Human Count: 43 / Car
+Count: 21` so the answer the assignment asks for is readable without
+the viewer having to count boxes manually.
+
+### Strengths
+
+- **End-to-end reproducible.** Every stage has a config YAML
+  (`configs/task0[1-4]_*.yaml`), a Python entry point
+  (`src/data/`, `src/train/`, `src/eval/`, `src/infer/`, `src/track/`),
+  and a Windows batch wrapper (`scripts/run_task0[1-4].bat`). Anyone
+  with the kagglehub cache + the Colab-trained `best.pt` can rebuild
+  every artifact in this README from scratch.
+- **Two-stage compute pipeline is honest about hardware.** Heavy
+  training runs on Colab T4 with AMP at `imgsz=800, batch=16`. Everything
+  else (validation, single-image inference, video tracking) is fast
+  enough on the local 6 GB GTX 1660 SUPER to be interactive.
+- **Counting layer is separable.** Task-03's counting is a thin
+  post-processor over the detector. Task-04 reuses *the exact same*
+  detector + thresholds and only adds tracking — no retraining, no
+  config divergence.
+- **Counters are designed for reviewer trust, not for headline numbers.**
+  Task-04 surfaces both `Visible` (per-frame) and `Unique` (cumulative
+  track IDs) counts on every annotated frame. That makes it easy to
+  see when the count is real ("Unique Cars climbed from 100 to 118 as
+  the drone panned over new traffic") vs when it's an artifact ("Unique
+  Humans climbed by 1 because of a tracker ID switch").
+- **Real-time on a 6 GB GPU.** The pipeline runs at 26-83 FPS at
+  `imgsz=800` depending on stage, well above the 25 FPS native frame
+  rate of VisDrone-VID. Nothing here is offline-only.
+
+### Limitations
+
+- **Person recall is the binding constraint.** On val the detector
+  hits person recall 0.51 (mAP@50 0.58); on test-dev it drops to
+  recall 0.33 / mAP@50 0.35. Most missed instances are the *tiny*
+  (<32 px²) pedestrians flagged in Task-01's
+  `bbox_area_distribution.png`. Everything downstream — Task-03's
+  human count, Task-04's `Unique Humans` — inherits this lower bound.
+- **2-class consolidation throws away information.** VisDrone ships 10
+  classes; we collapsed pedestrian + people → `person` and used only
+  `car` from the vehicle classes (no truck/van/bus). This was the
+  right call for the assignment scope but means the system literally
+  cannot report e.g. "5 trucks went past" even though that data was
+  in the labels.
+- **ByteTrack has no appearance re-ID.** On the road scene
+  (`uav0000268_05773_v`) the tracker reports 31 unique humans even
+  though peak visible humans was only 3. Most of those are ID switches
+  on pedestrians re-appearing after occlusion, not 31 distinct people.
+  A one-line swap to `botsort.yaml` in `configs/task04_track.yaml`
+  enables BoT-SORT's appearance head and partially mitigates this at
+  the cost of ~30% more inference time.
+- **Counting is geometry-blind.** Task-03's human count is the
+  number of detections, not the number of distinct *people*, and it
+  doesn't filter out e.g. reflections in glass facades or mannequins.
+  Task-04 is geometry-blind in the opposite way: it counts every
+  track ID even if a track corresponds to a stationary parked car
+  the drone happens to see twice (no zone / line-crossing logic).
+- **No video-side ground truth was evaluated.** The Task-04 numbers
+  are reported as-measured by the tracker; we did not compute MOTA /
+  IDF1 against the VisDrone-VID annotations because the assignment
+  didn't ask for it. The VID annotation files are present under
+  `data/.../VisDrone2019-VID-val/annotations/*.txt` if someone wants
+  to add MOT-style scoring later.
+
+### Challenges faced
+
+These are the real ones that ate time during development. Each has a
+mitigation that is now baked into the repo so they don't reappear.
+
+1. **GTX 1660 SUPER cannot use AMP.** Ultralytics' AMP self-check
+   produces NaNs on the TU116 architecture and auto-falls back to
+   FP32, which roughly doubles step time and pushes 6 GB VRAM to its
+   limit. **Mitigation:** moved canonical training to a Colab T4 via
+   `notebooks/task02_train_colab.ipynb`. The local
+   `configs/task02_train.yaml` survives as a documented fallback
+   with `amp: false` and `batch: 6`.
+2. **Windows file-locking killed long training runs.** Defender and
+   the search indexer intermittently lock `results.csv` mid-epoch,
+   so a multi-hour Ultralytics run dies with `PermissionError` after
+   ~30 minutes. **Mitigation:** monkey-patched `builtins.open` in
+   `src/train/train_detector.py` with exponential backoff (up to
+   ~60 s total). This works but is fragile — moving training to
+   Colab made it irrelevant.
+3. **Directory junctions caused silent 10-class label use.** The
+   first version of `src/data/build_yolo_dataset.py` used Windows
+   junctions to point `data/processed/visdrone/val/labels` at the
+   original 10-class label directory. Ultralytics happily resolved
+   the junction and trained on the *uncleaned* labels for an entire
+   epoch before validation metrics revealed the problem.
+   **Mitigation:** rewrote the builder to copy images directly and
+   hardlink only the cleaned `labels_yolo/` files.
+4. **`VisDrone2019-DET-test-challenge` ships without labels.** The
+   first auto-discovery pass picked it as the test split (lexical
+   match on "test"), and validation crashed.
+   **Mitigation:** `discover_image_dirs` now explicitly excludes
+   `test-challenge` and requires a sibling `annotations/` directory.
+5. **Tracker ID switches inflate unique counts in sparse scenes.**
+   See the road-sequence note under *Limitations*. Documented
+   in-banner via the dual `Visible` / `Unique` counters so a viewer
+   can spot the artifact themselves.
+6. **First Task-04 run autoinstalled `lap` (44 s overhead).**
+   Ultralytics' ByteTrack needs `lap>=0.5.12` for linear assignment
+   but doesn't list it in its hard dependencies. **Mitigation:**
+   `lap` is in `requirements.txt` so a fresh `pip install -r
+   requirements.txt` covers it once and for all.
+
+### Reproducing every artifact in this section
+
+```powershell
+# Task-01 — dataset cleaning + analysis
+scripts\run_task01.bat <KAGGLE_CACHE_PATH>
+
+# Task-02 — local val + test re-eval + sample predictions
+#   (training itself runs on Colab; copy best.pt to outputs/weights/ first)
+scripts\run_task02.bat <KAGGLE_CACHE_PATH>
+
+# Task-03 — detection + counting on 20 random val images
+scripts\run_task03.bat
+
+# Task-04 — tracking + unique-ID counting on a VID sequence
+scripts\run_task04.bat data\raw\VisDrone2019-VID-val\sequences\uav0000086_00000_v
+```
+

@@ -15,3 +15,8 @@ torchvision
 ultralytics>=8.3
 supervision
 scipy
+
+# Task-04: ByteTrack / BoT-SORT need linear-assignment.
+# Ultralytics auto-installs this on first tracker call if missing, but
+# pinning it here avoids the ~44s autoinstall on a clean machine.
+lap>=0.5.12
