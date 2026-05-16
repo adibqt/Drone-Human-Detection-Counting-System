@@ -1,23 +1,4 @@
-"""Task-03 — Human & Car detection with human counting.
 
-Loads a trained YOLOv8 checkpoint and produces annotated outputs plus a
-per-input record of `person_count`, `car_count`, and inference time.
-
-Supports two input modes:
-
-* `--image <path>`     — single image (.jpg / .png / ...).
-* `--image-dir <dir>`  — every image in the directory (sorted, or
-                         randomly sampled if `--num-samples` is given).
-
-The counting logic is intentionally simple, exactly as the assignment
-permits: after class-specific confidence filtering and a minimum-bbox-
-area filter, `human_count = number of remaining 'person' detections`.
-
-All thresholds and drawing config live in `configs/task03_count.yaml`
-so they are version-controlled and easy to tweak. Video / streaming
-inputs are out of scope for Task-03 and live with the Task-04
-tracking work.
-"""
 
 from __future__ import annotations
 

@@ -1,24 +1,4 @@
-"""Materialize a YOLO-ready dataset layout from the cleaned VisDrone outputs.
 
-Ultralytics expects each split to expose sibling `images/` and `labels/`
-directories AND it derives label paths by string-replacing `images` with
-`labels` on the *resolved* image path. This means directory junctions /
-symlinks pointing at the kagglehub cache are dangerous: the cached path
-also has a `labels/` directory containing the *original* 10-class
-VisDrone labels and Ultralytics will pick those up instead of our
-cleaned 2-class labels.
-
-To stay safe and reproducible, this script:
-
-1. Discovers each split's image folder inside the kagglehub cache.
-2. Copies images into `data/processed/visdrone/<split>/images/` (idempotent
-   - already-present files are skipped). Hardlinks are used when the
-   source and destination are on the same volume; otherwise file copy
-   is used.
-3. Renames / mirrors the cleaned `labels_yolo/` directory into the
-   expected `labels/` directory.
-4. Writes `configs/task02_data.yaml` consumed by the training pipeline.
-"""
 
 from __future__ import annotations
 

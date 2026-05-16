@@ -1,18 +1,4 @@
-"""Stitch a folder of image frames into a single .mp4 file.
 
-Useful for two workflows:
-
-1. Convert a downloaded VisDrone-VID sequence folder (which ships as
-   sorted .jpg frames + an annotations file) into the .mp4 that
-   `src/track/track_video.py` consumes.
-
-2. Build a quick smoke-test video out of VisDrone-DET sequential frames
-   (the ones whose filenames share a sequence prefix like
-   `0000026_*_d_*.jpg`) so you can exercise the Task-04 pipeline
-   without downloading anything new.
-
-Pure OpenCV — no ffmpeg dependency.
-"""
 
 from __future__ import annotations
 

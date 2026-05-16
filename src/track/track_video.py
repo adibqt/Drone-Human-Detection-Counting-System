@@ -1,30 +1,4 @@
-"""Task-04 (bonus) — Object tracking + unique-ID human counting on video.
 
-Wraps Ultralytics' built-in ByteTrack / BoT-SORT trackers around the
-Task-02 detector so the detector's per-frame outputs are linked into
-*persistent track IDs* across frames. That gives us two qualitatively
-different count readouts on the same video:
-
-* `Visible Humans`  — humans whose track is active on the *current*
-                      frame. This is what Task-03 already gives you,
-                      now de-flickered by the tracker.
-* `Unique Humans`   — total number of distinct human track IDs seen so
-                      far in the video. This is the answer to the
-                      question a human would actually ask
-                      ("how many different people walked through?").
-
-Outputs:
-    * An annotated `.mp4` with both counters as a banner overlay and
-      track IDs drawn next to each box (colored by track ID).
-    * `outputs/metrics/task04_track_counts.csv` — per-frame record of
-      visible + cumulative-unique counts and inference time.
-    * `outputs/metrics/task04_track_summary.json` — aggregate totals
-      and the configuration that produced them.
-
-Source can be a video file or a folder of frames (Ultralytics' tracker
-natively iterates both). For a folder of frames, FPS metadata in the
-output video defaults to `--out-fps`.
-"""
 
 from __future__ import annotations
 

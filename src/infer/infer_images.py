@@ -1,9 +1,4 @@
-"""Run a trained YOLO detector on sample images and save annotated outputs.
 
-For Task-02 we use this primarily to render qualitative sample predictions
-(saved under `outputs/figures/task02/predictions/`). A lightweight JSON
-summary per image is also written so it can be referenced in the README.
-"""
 
 from __future__ import annotations
 
