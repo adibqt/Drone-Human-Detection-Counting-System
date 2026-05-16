@@ -1,6 +1,6 @@
 
 *.txt
-ASSIGNMENT_EXECUTION_GUIDE.md
+
 .venv/
 *.py[cod]
 __pycache__/
