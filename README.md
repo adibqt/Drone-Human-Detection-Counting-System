@@ -9,6 +9,7 @@ in VisDrone imagery, counting humans, and visualizing the results.
 configs/                YAMLs for dataset cleaning + model training
 data/processed/         Cleaned VisDrone splits in YOLO format
 outputs/                Figures, metrics, and trained run artifacts
+notebooks/              Colab Training Notebook & Local eval tooling
 scripts/                Convenience .bat entry points (Windows)
 src/data/               Task-01 dataset prep / analysis / visualization
 src/train/              Task-02 training driver
